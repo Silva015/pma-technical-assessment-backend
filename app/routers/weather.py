@@ -90,3 +90,19 @@ async def update_weather_record(record_id: str, request: WeatherUpdateRequest):
     )
 
     return updated_record
+
+
+# ==========================================
+# --- DELETE (D) ---
+# ==========================================
+
+@router.delete("/{record_id}")
+async def delete_weather_record(record_id: str):
+    if not ObjectId.is_valid(record_id):
+        raise HTTPException(status_code=400, detail="O ID fornecido é inválido.")
+
+    result = await weather_collection.delete_one({"_id": ObjectId(record_id)})
+    if result.deleted_count == 0:
+        raise HTTPException(status_code=404, detail="Registo de clima não encontrado para exclusão.")
+
+    return {"message": "Registo eliminado com sucesso!"}
