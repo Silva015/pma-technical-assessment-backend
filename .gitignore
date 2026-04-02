@@ -1,0 +1,20 @@
+# Ambientes Virtuais
+.venv/
+venv/
+env/
+
+# Variáveis de Ambiente (CRÍTICO: Nunca suba este arquivo!)
+.env
+
+# Python Cache
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Arquivos de Sistema do Mac
+.DS_Store
+
+# IDEs (VSCode, etc)
+.vscode/
+.idea/
