@@ -27,3 +27,13 @@ class WeatherRecordResponse(BaseModel):
     end_date: date
     temperatures: List[DailyTemperature]
     created_at: datetime
+
+class WeatherUpdateRequest(BaseModel):
+    start_date: date
+    end_date: date
+
+    @model_validator(mode='after')
+    def check_date_range(self) -> 'WeatherUpdateRequest':
+        if self.start_date > self.end_date:
+            raise ValueError('A nova data inicial não pode ser posterior à data final.')
+        return self
