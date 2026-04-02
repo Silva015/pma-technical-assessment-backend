@@ -12,7 +12,7 @@ class WeatherCreateRequest(BaseModel):
     @model_validator(mode='after')
     def check_date_range(self) -> 'WeatherCreateRequest':
         if self.start_date > self.end_date:
-            raise ValueError('A data inicial (start_date) não pode ser posterior à data final (end_date).')
+            raise ValueError('The start date cannot be later than the end date.')
         return self
 
 class DailyTemperature(BaseModel):
@@ -35,12 +35,12 @@ class WeatherRecordResponse(BaseModel):
     created_at: datetime
 
 class WeatherUpdateRequest(BaseModel):
-    location: Optional[str] = Field(None, description="Novo local pesquisado (opcional)")
+    location: Optional[str] = Field(None, description="New searched location (optional)")
     start_date: date
     end_date: date
 
     @model_validator(mode='after')
     def check_date_range(self) -> 'WeatherUpdateRequest':
         if self.start_date > self.end_date:
-            raise ValueError('A nova data inicial não pode ser posterior à data final.')
+            raise ValueError('The new start date cannot be later than the end date.')
         return self

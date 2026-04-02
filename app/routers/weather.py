@@ -29,7 +29,7 @@ async def create_weather_record(request: WeatherCreateRequest):
         "start_date": request.start_date.isoformat(), 
         "end_date": request.end_date.isoformat(),
         "temperatures": [temp.model_dump(mode='json') for temp in real_temperatures],
-        "integrations": integrations_data, # NOVO CAMPO SALVO NO BANCO
+        "integrations": integrations_data,
         "created_at": datetime.now(timezone.utc)
     }
 
@@ -53,12 +53,12 @@ async def get_all_weather_records():
 @router.get("/{record_id}", response_model=WeatherRecordResponse)
 async def get_weather_record_by_id(record_id: str):
     if not ObjectId.is_valid(record_id):
-        raise HTTPException(status_code=400, detail="O ID fornecido é inválido.")
+        raise HTTPException(status_code=400, detail="The provided ID is invalid.")
         
     record = await weather_collection.find_one({"_id": ObjectId(record_id)})
     
     if not record:
-        raise HTTPException(status_code=404, detail="Registo de clima não encontrado.")
+        raise HTTPException(status_code=404, detail="Weather record not found.")
         
     return record
 
@@ -70,11 +70,11 @@ async def get_weather_record_by_id(record_id: str):
 @router.put("/{record_id}", response_model=WeatherRecordResponse)
 async def update_weather_record(record_id: str, request: WeatherUpdateRequest):
     if not ObjectId.is_valid(record_id):
-        raise HTTPException(status_code=400, detail="O ID fornecido é inválido.")
+        raise HTTPException(status_code=400, detail="The provided ID is invalid.")
 
     existing_record = await weather_collection.find_one({"_id": ObjectId(record_id)})
     if not existing_record:
-        raise HTTPException(status_code=404, detail="Registo de clima não encontrado para atualização.")
+        raise HTTPException(status_code=404, detail="Weather record not found for update.")
         
     location_to_search = request.location if request.location else existing_record["location"]
 
@@ -110,10 +110,10 @@ async def update_weather_record(record_id: str, request: WeatherUpdateRequest):
 @router.delete("/{record_id}")
 async def delete_weather_record(record_id: str):
     if not ObjectId.is_valid(record_id):
-        raise HTTPException(status_code=400, detail="O ID fornecido é inválido.")
+        raise HTTPException(status_code=400, detail="The provided ID is invalid.")
 
     result = await weather_collection.delete_one({"_id": ObjectId(record_id)})
     if result.deleted_count == 0:
-        raise HTTPException(status_code=404, detail="Registo de clima não encontrado para exclusão.")
+        raise HTTPException(status_code=404, detail="Weather record not found for deletion.")
 
-    return {"message": "Registo eliminado com sucesso!"}
+    return {"message": "Record successfully deleted!"}

@@ -12,7 +12,7 @@ async def get_location_integrations(location_name: str, lat: float, lon: float) 
 
     try:
         async with httpx.AsyncClient(follow_redirects=True) as client:
-            wiki_url = f"https://pt.wikipedia.org/w/api.php?action=query&prop=extracts&exintro=true&explaintext=true&titles={encoded_city}&format=json"
+            wiki_url = f"https://en.wikipedia.org/w/api.php?action=query&prop=extracts&exintro=true&explaintext=true&titles={encoded_city}&format=json"
             
             headers = {
                 "User-Agent": "PMA-WeatherApp/1.0 (mailto:name.surname@example.com)"
@@ -32,13 +32,13 @@ async def get_location_integrations(location_name: str, lat: float, lon: float) 
                         first_paragraph = extract.split('\n')[0]
                         integrations["wikipedia_summary"] = first_paragraph
                     else:
-                        integrations["wikipedia_summary"] = f"A Wikipedia não encontrou um resumo exato para {city_only}."
+                        integrations["wikipedia_summary"] = f"Wikipedia could not find an exact summary for {city_only}."
                 else:
-                    integrations["wikipedia_summary"] = f"A Wikipedia não encontrou um resumo exato para {city_only}."
+                    integrations["wikipedia_summary"] = f"Wikipedia could not find an exact summary for {city_only}."
             else:
-                integrations["wikipedia_summary"] = f"Erro da Wikipedia: {response.status_code}"
+                integrations["wikipedia_summary"] = f"Wikipedia error: {response.status_code}"
     except Exception as e:
-        integrations["wikipedia_summary"] = f"Resumo indisponível: {str(e)}"
+        integrations["wikipedia_summary"] = f"Summary unavailable: {str(e)}"
 
     full_encoded_location = urllib.parse.quote(location_name)
     integrations["youtube_videos"] = []

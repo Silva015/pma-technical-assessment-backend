@@ -5,11 +5,11 @@ from app.schemas.weather import DailyTemperature
 
 async def fetch_real_weather(location: str, start_date: date, end_date: date):
     async with httpx.AsyncClient() as client:
-        geo_url = f"https://geocoding-api.open-meteo.com/v1/search?name={location}&count=1&language=pt"
+        geo_url = f"https://geocoding-api.open-meteo.com/v1/search?name={location}&count=1&language=en"
         geo_response = await client.get(geo_url)
         geo_data = geo_response.json()
         if not geo_data.get("results"):
-            raise HTTPException(status_code=404, detail=f"A localização '{location}' não foi encontrada no mapa.")
+            raise HTTPException(status_code=404, detail=f"The location '{location}' was not found on the map.")
 
         lat = geo_data["results"][0]["latitude"]
         lon = geo_data["results"][0]["longitude"]
@@ -29,7 +29,7 @@ async def fetch_real_weather(location: str, start_date: date, end_date: date):
         if weather_response.status_code != 200:
             raise HTTPException(
                 status_code=400, 
-                detail="Erro ao buscar o clima. Verifique se as datas não estão muito no futuro (limite de 14 dias para previsão)."
+                detail="Error fetching weather. Ensure the dates are not too far in the future (14-day limit for forecast)."
             )
             
         weather_data = weather_response.json()
@@ -44,7 +44,7 @@ async def fetch_real_weather(location: str, start_date: date, end_date: date):
                 DailyTemperature(
                     date=dates[i],
                     temp_celsius=max_temps[i],
-                    description="Temperatura Máxima Diária"
+                    description="Daily Maximum Temperature"
                 )
             )
 

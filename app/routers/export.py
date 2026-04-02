@@ -18,13 +18,13 @@ async def export_data(format: ExportFormat):
     records = await cursor.to_list(length=1000)
 
     if not records:
-        raise HTTPException(status_code=404, detail="Não existem registos para exportar.")
+        raise HTTPException(status_code=404, detail="There are no records to export.")
 
     for record in records:
         record["_id"] = str(record["_id"])
 
     # ==========================================
-    # 1. Exportar em JSON
+    # 1. Export as JSON
     # ==========================================
     if format.value == "json":
         json_data = json.dumps(records, default=str, ensure_ascii=False, indent=2)
@@ -35,13 +35,13 @@ async def export_data(format: ExportFormat):
         )
 
     # ==========================================
-    # 2. Exportar em CSV
+    # 2. Export as CSV
     # ==========================================
     elif format.value == "csv":
         output = io.StringIO()
         writer = csv.writer(output)
         
-        writer.writerow(["ID", "Localizacao", "Data Inicial", "Data Final", "Temperaturas (JSON)", "Integracoes (JSON)"])
+        writer.writerow(["ID", "Location", "Start Date", "End Date", "Temperatures (JSON)", "Integrations (JSON)"])
         
         for r in records:
             writer.writerow([
@@ -60,30 +60,30 @@ async def export_data(format: ExportFormat):
         )
 
     # ==========================================
-    # 3. Exportar em MARKDOWN
+    # 3. Export as MARKDOWN
     # ==========================================
     elif format.value == "markdown":
-        md_content = "# Exportação de Dados Meteorológicos\n\n"
+        md_content = "# Weather Data Export\n\n"
         
         for r in records:
-            md_content += f"## Localização: {r.get('location')}\n"
-            md_content += f"- **ID do Registo:** {r.get('_id')}\n"
-            md_content += f"- **Período:** {r.get('start_date')} a {r.get('end_date')}\n\n"
+            md_content += f"## Location: {r.get('location')}\n"
+            md_content += f"- **Record ID:** {r.get('_id')}\n"
+            md_content += f"- **Period:** {r.get('start_date')} to {r.get('end_date')}\n\n"
             
-            md_content += "### Temperaturas\n"
+            md_content += "### Temperatures\n"
             for t in r.get("temperatures", []):
                 md_content += f"- **{t['date']}:** {t['temp_celsius']}°C\n"
             
             integ = r.get("integrations", {})
-            md_content += "\n### Integrações Extra\n"
-            md_content += f"- [Abrir no Google Maps]({integ.get('google_maps_url', '')})\n"
-            md_content += f"- **História:** {integ.get('wikipedia_summary', 'N/A')}\n"
+            md_content += "\n### Extra Integrations\n"
+            md_content += f"- [Open in Google Maps]({integ.get('google_maps_url', '')})\n"
+            md_content += f"- **History:** {integ.get('wikipedia_summary', 'N/A')}\n"
             
             youtube_links = integ.get('youtube_videos', [])
             if youtube_links:
-                md_content += "- **Vídeos / Busca no YouTube:**\n"
+                md_content += "- **Videos / YouTube Search:**\n"
                 for link in youtube_links:
-                    md_content += f"  - [Acessar link do YouTube]({link})\n"
+                    md_content += f"  - [Access YouTube link]({link})\n"
                     
             md_content += "\n---\n\n"
             
