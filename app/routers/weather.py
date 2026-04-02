@@ -13,7 +13,12 @@ router = APIRouter(prefix="/weather", tags=["Weather CRUD"])
 # --- CREATE (C) ---
 # ==========================================
 
-@router.post("/", response_model=WeatherRecordResponse)
+@router.post(
+    "/", 
+    response_model=WeatherRecordResponse,
+    summary="Create a new weather record",
+    description="Fetches real weather data from Open-Meteo, gathers integrations (Wikipedia, YouTube), and stores a new complete record in the database."
+)
 async def create_weather_record(request: WeatherCreateRequest):
     
     real_location_name, lat, lon, real_temperatures = await fetch_real_weather(
@@ -42,7 +47,12 @@ async def create_weather_record(request: WeatherCreateRequest):
 # --- READ (R) ---
 # ==========================================
 
-@router.get("/", response_model=List[WeatherRecordResponse])
+@router.get(
+    "/", 
+    response_model=List[WeatherRecordResponse],
+    summary="List all weather records",
+    description="Retrieves a list of up to 100 recently saved weather records."
+)
 async def get_all_weather_records():
     cursor = weather_collection.find({}).limit(100)
     records = await cursor.to_list(length=100)
@@ -50,7 +60,12 @@ async def get_all_weather_records():
     return records
 
 
-@router.get("/{record_id}", response_model=WeatherRecordResponse)
+@router.get(
+    "/{record_id}", 
+    response_model=WeatherRecordResponse,
+    summary="Get a specific weather record",
+    description="Fetches the full details (temperatures, integrations, etc.) of a specific weather record using its MongoDB ID."
+)
 async def get_weather_record_by_id(record_id: str):
     if not ObjectId.is_valid(record_id):
         raise HTTPException(status_code=400, detail="The provided ID is invalid.")
@@ -67,7 +82,12 @@ async def get_weather_record_by_id(record_id: str):
 # --- UPDATE (U) ---
 # ==========================================
 
-@router.put("/{record_id}", response_model=WeatherRecordResponse)
+@router.put(
+    "/{record_id}", 
+    response_model=WeatherRecordResponse,
+    summary="Update an existing weather record",
+    description="Updates the location or the exact period, resolving new external requests to keep the weather and integrations data synced."
+)
 async def update_weather_record(record_id: str, request: WeatherUpdateRequest):
     if not ObjectId.is_valid(record_id):
         raise HTTPException(status_code=400, detail="The provided ID is invalid.")
@@ -107,7 +127,11 @@ async def update_weather_record(record_id: str, request: WeatherUpdateRequest):
 # --- DELETE (D) ---
 # ==========================================
 
-@router.delete("/{record_id}")
+@router.delete(
+    "/{record_id}",
+    summary="Delete a weather record",
+    description="Permanently removes a specific weather record from the database using its unique MongoDB ID."
+)
 async def delete_weather_record(record_id: str):
     if not ObjectId.is_valid(record_id):
         raise HTTPException(status_code=400, detail="The provided ID is invalid.")

@@ -12,7 +12,11 @@ class ExportFormat(str, Enum):
     csv = "csv"
     markdown = "markdown"
     
-@router.get("/{format}")
+@router.get(
+    "/{format}",
+    summary="Export the Weather Database",
+    description="Downloads the entire database into your preferred chosen format. **Supported output formats:**\n- `json`\n- `csv`\n- `markdown`\n\nThe markdown output provides a clear, visually pleasing document perfect for reading."
+)
 async def export_data(format: ExportFormat):
     cursor = weather_collection.find({})
     records = await cursor.to_list(length=1000)
