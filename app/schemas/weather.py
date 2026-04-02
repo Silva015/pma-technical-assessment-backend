@@ -1,6 +1,8 @@
-from pydantic import BaseModel, Field, model_validator
+from pydantic import BaseModel, Field, model_validator, BeforeValidator
 from datetime import date, datetime
-from typing import List
+from typing import List, Annotated
+
+PyObjectId = Annotated[str, BeforeValidator(str)]
 
 class WeatherCreateRequest(BaseModel):
     location: str = Field(..., description="Zip Code, Town, City, Landmarks, etc.")
@@ -17,8 +19,9 @@ class DailyTemperature(BaseModel):
     date: date
     temp_celsius: float
     description: str
+
 class WeatherRecordResponse(BaseModel):
-    id: str = Field(alias="_id")
+    id: PyObjectId = Field(alias="_id") 
     location: str
     start_date: date
     end_date: date

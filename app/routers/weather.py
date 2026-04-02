@@ -1,10 +1,16 @@
-from fastapi import APIRouter
+from fastapi import APIRouter, HTTPException
 from datetime import datetime, timezone
+from typing import List
+from bson import ObjectId
 from app.schemas.weather import WeatherCreateRequest, WeatherRecordResponse
 from app.core.database import weather_collection
 from app.services.weather_api import fetch_real_weather
 
 router = APIRouter(prefix="/weather", tags=["Weather CRUD"])
+
+# ==========================================
+# --- CREATE (C) ---
+# ==========================================
 
 @router.post("/", response_model=WeatherRecordResponse)
 async def create_weather_record(request: WeatherCreateRequest):
@@ -26,3 +32,28 @@ async def create_weather_record(request: WeatherCreateRequest):
     result = await weather_collection.insert_one(weather_document)
     weather_document["_id"] = str(result.inserted_id)
     return weather_document
+
+
+# ==========================================
+# --- READ (R) ---
+# ==========================================
+
+@router.get("/", response_model=List[WeatherRecordResponse])
+async def get_all_weather_records():
+    cursor = weather_collection.find({}).limit(100)
+    records = await cursor.to_list(length=100)
+    
+    return records
+
+
+@router.get("/{record_id}", response_model=WeatherRecordResponse)
+async def get_weather_record_by_id(record_id: str):
+    if not ObjectId.is_valid(record_id):
+        raise HTTPException(status_code=400, detail="O ID fornecido é inválido.")
+        
+    record = await weather_collection.find_one({"_id": ObjectId(record_id)})
+    
+    if not record:
+        raise HTTPException(status_code=404, detail="Registo de clima não encontrado.")
+        
+    return record
