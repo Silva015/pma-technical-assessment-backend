@@ -5,6 +5,7 @@ from bson import ObjectId
 from app.schemas.weather import WeatherCreateRequest, WeatherRecordResponse, WeatherUpdateRequest
 from app.core.database import weather_collection
 from app.services.weather_api import fetch_real_weather
+from app.services.integrations import get_location_integrations
 
 router = APIRouter(prefix="/weather", tags=["Weather CRUD"])
 
@@ -15,22 +16,25 @@ router = APIRouter(prefix="/weather", tags=["Weather CRUD"])
 @router.post("/", response_model=WeatherRecordResponse)
 async def create_weather_record(request: WeatherCreateRequest):
     
-    real_location_name, real_temperatures = await fetch_real_weather(
+    real_location_name, lat, lon, real_temperatures = await fetch_real_weather(
         location=request.location,
         start_date=request.start_date,
         end_date=request.end_date
     )
+
+    integrations_data = await get_location_integrations(real_location_name, lat, lon)
 
     weather_document = {
         "location": real_location_name, 
         "start_date": request.start_date.isoformat(), 
         "end_date": request.end_date.isoformat(),
         "temperatures": [temp.model_dump(mode='json') for temp in real_temperatures],
+        "integrations": integrations_data, # NOVO CAMPO SALVO NO BANCO
         "created_at": datetime.now(timezone.utc)
     }
 
     result = await weather_collection.insert_one(weather_document)
-    weather_document["_id"] = str(result.inserted_id)
+    weather_document["_id"] = result.inserted_id
     return weather_document
 
 
@@ -71,16 +75,23 @@ async def update_weather_record(record_id: str, request: WeatherUpdateRequest):
     existing_record = await weather_collection.find_one({"_id": ObjectId(record_id)})
     if not existing_record:
         raise HTTPException(status_code=404, detail="Registo de clima não encontrado para atualização.")
-    _, new_temperatures = await fetch_real_weather(
-        location=existing_record["location"], 
+        
+    location_to_search = request.location if request.location else existing_record["location"]
+
+    real_location_name, lat, lon, new_temperatures = await fetch_real_weather(
+        location=location_to_search, 
         start_date=request.start_date,
         end_date=request.end_date
     )
 
+    integrations_data = await get_location_integrations(real_location_name, lat, lon)
+
     update_data = {
+        "location": real_location_name,
         "start_date": request.start_date.isoformat(),
         "end_date": request.end_date.isoformat(),
-        "temperatures": [temp.model_dump(mode='json') for temp in new_temperatures]
+        "temperatures": [temp.model_dump(mode='json') for temp in new_temperatures],
+        "integrations": integrations_data
     }
 
     updated_record = await weather_collection.find_one_and_update(

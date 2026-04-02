@@ -1,6 +1,6 @@
 from pydantic import BaseModel, Field, model_validator, BeforeValidator
 from datetime import date, datetime
-from typing import List, Annotated
+from typing import List, Annotated, Optional
 
 PyObjectId = Annotated[str, BeforeValidator(str)]
 
@@ -20,15 +20,22 @@ class DailyTemperature(BaseModel):
     temp_celsius: float
     description: str
 
+class IntegrationsData(BaseModel):
+    google_maps_url: str
+    wikipedia_summary: Optional[str] = None
+    youtube_videos: List[str] = []
+
 class WeatherRecordResponse(BaseModel):
     id: PyObjectId = Field(alias="_id") 
     location: str
     start_date: date
     end_date: date
     temperatures: List[DailyTemperature]
+    integrations: Optional[IntegrationsData] = None
     created_at: datetime
 
 class WeatherUpdateRequest(BaseModel):
+    location: Optional[str] = Field(None, description="Novo local pesquisado (opcional)")
     start_date: date
     end_date: date
 

@@ -48,4 +48,4 @@ async def fetch_real_weather(location: str, start_date: date, end_date: date):
                 )
             )
 
-        return full_location_name, temperatures
+        return full_location_name, lat, lon, temperatures
