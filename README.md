@@ -1,6 +1,11 @@
-# 🌤️ Weather & Tourism API - Tech Assessment
+# 🌤️ Weather App API - Tech Assessment
 
-This project is a backend developed in **Python (FastAPI)** focused on data persistence (CRUD), external API integrations, and data export, fulfilling all the requirements of the Technical Assessment.
+## ❓ What it does
+This application is a **Weather App Backend API** developed in Python (FastAPI). It provides a complete system for managing weather data with third-party integrations, allowing users to:
+* **Manage Weather Data:** Create, read, update, and delete temperature histories for any location.
+* **Discover Location Insights:** Retrieve exact coordinates and daily maximum temperatures via **Open-Meteo**, generate a **Google Maps** link, fetch a clean historical/cultural summary from **Wikipedia**, and get tourism search links for **YouTube** automatically.
+* **Export Data:** Download the entire saved weather database in `JSON`, `CSV`, or `Markdown` formats.
+* **Persist Data:** Store all weather records asynchronously in a NoSQL **MongoDB Atlas** database.
 
 ## 🚀 Features
 
@@ -37,7 +42,7 @@ MONGO_URL="mongodb+srv://<username>:<password>@cluster.mongodb.net/?retryWrites=
 YOUTUBE_API_KEY=""
 ```
 
-## 💻 Installation and Execution
+## 💻 How to Run the Application (Installation and Execution)
 
 This project uses [uv](https://github.com/astral-sh/uv) as a package manager for superior performance.
 
